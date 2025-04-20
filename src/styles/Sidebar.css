@@ -1,0 +1,243 @@
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  background: #1A1A2E;
+  padding: 35px;
+  border-right: 1px solid #6E48AA;
+  overflow-y: auto;
+  position: fixed;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.main-content {
+  transition: margin-left 0.3s ease;
+}
+  
+  .new-chat-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #6E48AA, #8A2BE2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+  }
+  
+  .new-chat-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(110, 72, 170, 0.4);
+  }
+  
+  .chat-history h3 {
+    color: #00E0FF;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+  }
+  
+  .chat-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .chat-item:hover {
+    background: rgba(110, 72, 170, 0.3);
+  }
+  
+  .chat-item small {
+    display: block;
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: 4px;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+
+  .chat-history {
+    margin-top: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  
+  .chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .chat-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .chat-button {
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    flex-grow: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .delete-button {
+    background: none;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+  }
+
+  .chat-history {
+    margin-top: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+  }
+  
+  .chat-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .chat-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .chat-item.active {
+    background-color: rgba(0, 224, 255, 0.2);
+    border-left: 3px solid #00E0FF;
+  }
+  
+  .chat-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chat-date {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 3px;
+  }
+  
+  .empty-chats {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+  }
+
+  .chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #3E3E6B;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .chat-item:hover {
+    background-color: #2C2C54;
+  }
+  
+  .chat-item.active {
+    background-color: #6E48AA;
+  }
+  
+  .chat-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .chat-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chat-date {
+    font-size: 0.8rem;
+    color: #AAA;
+    margin-top: 3px;
+  }
+  
+  .delete-chat-btn {
+    background: none;
+    border: none;
+    color: #FF4D4D;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  
+  .chat-item:hover .delete-chat-btn {
+    opacity: 1;
+  }
+  
+  .delete-chat-btn:hover {
+    color: #FF7E5F;
+  }
+  
+  .empty-chats {
+    padding: 20px;
+    text-align: center;
+    color: #AAA;
+  }
+
+  .error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid #c62828;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .error-message button {
+    background: none;
+    border: none;
+    color: #c62828;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 5px;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
