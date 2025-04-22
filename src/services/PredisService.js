@@ -1,99 +1,82 @@
-const API_URL = "https://brain.predis.ai/predis_api/v1/create_content/";
-const API_STATUS_URL = "https://brain.predis.ai/predis_api/v1/check_status/";
-const API_KEY = 'ZPwFdRk0ycNY514wYoRUaKpj7rfGJE8J';
+const PREDIS_API_URL = "https://brain.predis.ai/predis_api/v1/create_content/";
+const GET_POSTS_URL = "https://brain.predis.ai/predis_api/v1/get_posts/";
 
-// Función para verificar el estado del contenido
-const checkContentStatus = async (taskId, maxAttempts = 30, interval = 5000) => {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      const response = await fetch(`${API_STATUS_URL}?task_id=${taskId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${API_KEY}`,
-        },
-      });
+export const PredisService = {
+  /**
+   * Genera contenido con manejo de webhook
+   * @param {string} apiKey - Tu API key
+   * @param {string} brandId - Tu Brand ID
+   * @param {string} text - Texto del prompt
+   * @param {string} webhookUrl - URL de webhook configurada
+   * @param {string} [mediaType='video'] - Tipo de media
+   * @param {string} [duration='short'] - Duración del video
+   * @returns {Promise<Object>} - Respuesta de la API
+   */
+  async createContentWithWebhook(apiKey, brandId, text, webhookUrl, mediaType = 'video', duration = 'short') {
+    // 1. Iniciar generación del video
+    const formData = new FormData();
+    formData.append('brand_id', brandId);
+    formData.append('text', text);
+    formData.append('media_type', mediaType);
+    formData.append('video_duration', duration);
+    formData.append('webhook_url', webhookUrl);
+    formData.append('template_ids', '[]');
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data.status === 'completed') {
-        return data; // Video listo
-      } else if (data.status === 'failed') {
-        throw new Error('La generación del video falló');
-      }
-      
-      // Si no está listo, esperamos antes de reintentar
-      await new Promise(resolve => setTimeout(resolve, interval));
-    } catch (error) {
-      console.error('Error verificando estado:', error);
-      if (attempt === maxAttempts - 1) throw error;
-    }
-  }
-  throw new Error('Tiempo de espera agotado para la generación del video');
-};
-
-export const generateContent = async (
-  brandId, 
-  text, 
-  postType = 'generic', 
-  language = 'english', 
-  mediaType = 'single_image', 
-  videoDuration = 'short'
-) => {
-  const formData = new FormData();
-  
-  formData.append('brand_id', brandId);
-  formData.append('text', text);
-  formData.append('post_type', postType);
-  formData.append('input_language', language);
-  formData.append('output_language', language);
-  formData.append('media_type', mediaType);
-  
-  if (mediaType === 'video') {
-    formData.append('video_duration', videoDuration);
-  }
-
-  try {
-    // 1. Iniciar la generación del contenido
-    const response = await fetch(API_URL, {
+    const response = await fetch(PREDIS_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: formData,
+      body: formData
     });
 
-    if (!response.ok) {
-      throw new Error(`Error HTTP! estado: ${response.status}`);
-    }
-
     const data = await response.json();
-    
-    // 2. Si es video, verificar estado hasta que esté listo
-    if (mediaType === 'video' && data.task_id) {
-      const finalResult = await checkContentStatus(data.task_id);
-      return {
-        ...finalResult,
-        message: "Video generado exitosamente",
-        video_url: finalResult.video_url || finalResult.result_url
-      };
-    }
-    
-    return data; // Para imágenes u otros tipos de media
 
-  } catch (error) {
-    console.error('❌ Error en la solicitud a Predis.ai:', error);
-    
-    // Mejorar mensajes de error
-    const friendlyError = new Error(
-      error.message.includes('429') ? 
-      "Límite de solicitudes alcanzado. Por favor espera unos minutos." :
-      "Error al generar el contenido. Por favor intenta nuevamente."
-    );
-    
-    throw friendlyError;
+    if (!response.ok) {
+      throw new Error(`${response.status}: ${JSON.stringify(data)}`);
+    }
+
+    // 2. Obtener el post_id de la respuesta
+    const postId = data.post_ids?.[0];
+    if (!postId) {
+      throw new Error('No se recibió post_id en la respuesta');
+    }
+
+    console.log(postId);
+
+    // 3. Esperar inicialmente (ajustable según necesidad)
+    await new Promise(resolve => setTimeout(resolve, 120000)); // 30 segundos
+    console.log("la pase los 60s");
+    // 4. Buscar el post específico con polling (5 intentos máximo)
+
+      console.log("entre");
+      // Buscar posts filtrando por el post_id específico
+      const postsResponse = await fetch(`${GET_POSTS_URL}?brand_id=${brandId}&post_id=${postId}`, {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+        }
+      });
+
+      const postsData = await postsResponse.json();
+      console.log("post data", postsData);
+
+      if (!postsResponse.ok) {
+        throw new Error(postsData.detail || `Error ${postsResponse.status}`);
+      }
+
+      // Encontrar nuestro post específico
+      const ourPost = postsData.posts?.find(post => post.post_id === postId);
+      console.log("ourPost", ourPost);
+      console.log("ourPost1", ourPost?.generated_media[0].url);
+      console.log("ourPost2", ourPost?.generated_media[0].url_hq);
+      console.log("ourPost3", ourPost?.generated_media[0].thumb_url);
+      const urlfinal = ourPost?.generated_media[0].url;
+
+      return {
+        url: urlfinal,
+        caption: ourPost.caption,
+        post_id: postId,
+        status: 'completed'
+      };
   }
 };
