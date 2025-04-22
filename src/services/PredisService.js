@@ -12,7 +12,7 @@ export const PredisService = {
    * @param {string} [duration='short'] - Duración del video
    * @returns {Promise<Object>} - Respuesta de la API
    */
-  async createContentWithWebhook(apiKey, brandId, text, webhookUrl, mediaType = 'video', duration = 'short') {
+  async createContentWithWebhook(apiKey, brandId, text, webhookUrl, mediaType = 'video', duration = 'long') {
     // 1. Iniciar generación del video
     const formData = new FormData();
     formData.append('brand_id', brandId);
