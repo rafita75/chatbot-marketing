@@ -4,7 +4,7 @@ import { getUserIP, saveChat, loadUserChats } from '../services/chatService';
 import StabilityService from '../services/stabilityService';
 import '../styles/App.css'; 
 import '../styles/responsive.css'; 
-import { generateContent } from '../services/PredisService';
+import { PredisService } from '../services/PredisService';
 
 const placeholderTexts = [
   "Escribe tu estrategia de marketing...",
@@ -175,23 +175,25 @@ const ChatInterface = ({ currentChatId, ip, onChatUpdate }) => {
         }
           break;  
         case 'video':
-          setIsGeneratingVideo(true); 
+          setIsGeneratingVideo(true);
           try {
-            // 3. Llamada al servicio de Predis.ai para generar video
-            const brandId = '68043a0bd24f5bcdbf592af0';  // Sustituye por tu Brand ID
-            const response = await generateContent(
-              brandId, 
-              input, 
-              'generic',  // Puedes cambiar el tipo de post si lo deseas
-              'spanish',  // Idioma de entrada
-              'video',    // Tipo de media (en este caso video)
-              'short'     // Duración del video
+            const response = await PredisService.createContentWithWebhook(
+              'ozysesYkF0meompSHvdBZnp3Y6cATElH',
+              '6806ccaf794ac7d6953f4bb1',
+              input,
+              'https://webhook.site/6d2a5637-b635-45a1-9d84-80a0a0dbbd72',
+              'video',
+              'short'
             );
-            videoUrl = response.video_url;  // Asegúrate de que la respuesta tenga un campo de URL del video
-            aiResponse = response.message || "Contenido generado exitosamente";  // Respuesta de la API
-          } catch (genError) {
-            aiResponse = "No pude generar el video. Por favor intenta con otro prompt.";
-            console.error(genError);
+
+            console.log(response);
+
+            videoUrl = response.url;
+            aiResponse = "¡Video generado exitosamente!";
+
+          } catch (error) {
+            console.error("Error generando video:", error);
+            aiResponse = "Error al generar el video: " + error.message;
           } finally {
             setIsGeneratingVideo(false);
           }
